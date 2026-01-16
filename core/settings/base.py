@@ -44,7 +44,9 @@ INSTALLED_APPS = [
 ]
 
 APPS = [
-    # local apps
+    "accounts.apps.AccountsConfig",
+    # "quizzes.apps.QuizzesConfig",
+    # "activities.apps.ActivitiesConfig",
 ]
 
 THIRD_PARTY_APPS = [
@@ -84,6 +86,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+
+AUTH_USER_MODEL = 'accounts.User'
 
 
 # Database

@@ -1,7 +1,10 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 class UserManager(BaseUserManager):
     """Custom user manager where email is the unique identifier for authentication instead of usernames."""
+
     def create_user(self, email, password=None, **extra_fields):
         """Create and save a User with the given email and password."""
         if not email:
@@ -16,7 +19,6 @@ class UserManager(BaseUserManager):
         """Create and save a SuperUser with the given email and password."""
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("role", "ADMIN")
         return self.create_user(email, password, **extra_fields)
     
 
