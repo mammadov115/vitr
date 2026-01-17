@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from accounts.models import User, Achievement
 from accounts.serializers import UserProfileSerializer, RegisterSerializer, AchievementSerializer
-from accounts.permissions import IsOwnerOrReadOnly
+from core.permissions import IsOwnerOrReadOnly
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 

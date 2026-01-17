@@ -1,47 +1,40 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 from .models import User, Profile, Achievement, UserAchievement
-
-# For Unfold admin customization
-from unfold.admin import TabularInline
 
 class ProfileInline(TabularInline):
     model = Profile
     can_delete = False
-    verbose_name_plural = 'Profile Statistics'
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
     """
-    Custom User admin using Unfold's design.
+    Simplified UserAdmin using Unfold.
     """
     inlines = (ProfileInline,)
     list_display = ("username", "email", "is_staff", "is_verified")
-    list_filter = ("is_staff", "is_superuser", "is_active", "is_verified")
     
-    # Customize the fieldsets to include additional fields
-    fieldsets = (
-        (None, {"fields": ("username", "password")}),
-        ("Personal info", {"fields": ("email", "avatar", "bio")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "is_verified", "groups", "user_permissions")}),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    # Keeping minimal fieldsets to avoid potential crashes with custom fields
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ("Extra Info", {"fields": ("avatar", "is_verified", "bio")}),
     )
+
+    # Adding email to the "Add User" form
+    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+        (None, {"fields": ("email",)}),
+    )
+
+    readonly_fields = ("date_joined", "last_login")
+
+@admin.register(Profile)
+class ProfileAdmin(ModelAdmin):
+    list_display = ("user", "level", "quizzes_taken", "total_score")
 
 @admin.register(Achievement)
 class AchievementAdmin(ModelAdmin):
-    """
-    Admin for achievements with Unfold features.
-    """
-    list_display = ("name", "badge_type", "description")
-    search_fields = ("name",)
-    list_filter = ("badge_type",)
+    list_display = ("name", "badge_type")
 
 @admin.register(UserAchievement)
 class UserAchievementAdmin(ModelAdmin):
-    """
-    Tracks which user earned which achievement.
-    """
     list_display = ("user", "achievement", "earned_at")
-    list_filter = ("achievement", "earned_at")
-    date_hierarchy = 'earned_at'
