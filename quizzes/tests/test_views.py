@@ -124,3 +124,23 @@ class TestQuizzesViews:
         response = api_client.post(submit_url, payload, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "already been submitted" in response.data['error']
+
+    def test_filter_quizzes_by_category(self, api_client, test_user):
+        """Test filtering quiz list by category slug."""
+        cat1 = Category.objects.create(name="History", slug="history")
+        cat2 = Category.objects.create(name="Math", slug="math")
+        Quiz.objects.create(title="WW2", category=cat1, is_active=True)
+        Quiz.objects.create(title="Algebra", category=cat2, is_active=True)
+        
+        url = reverse('quiz-list', kwargs={'version': 'v1'})
+        
+        # Filter by history
+        response = api_client.get(f"{url}?category=history")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+        assert response.data[0]['title'] == "WW2"
+        
+        # Filter by math
+        response = api_client.get(f"{url}?category=math")
+        assert len(response.data) == 1
+        assert response.data[0]['title'] == "Algebra"

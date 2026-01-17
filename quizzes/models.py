@@ -47,10 +47,13 @@ class Question(models.Model):
 
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
-    order = models.PositiveIntegerField(default=0) # Soruların sırası için
+    order = models.PositiveIntegerField(default=0) # For question order
 
     def __str__(self):
         return self.text
+
+    class Meta:
+        ordering = ['order']
 
 
 class Choice(models.Model):

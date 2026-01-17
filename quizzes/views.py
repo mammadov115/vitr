@@ -43,19 +43,49 @@ class CategoryDetailView(generics.RetrieveAPIView):
 # --- Quiz Views ---
 
 class QuizListView(generics.ListAPIView):
-    """List all active quizzes."""
-    queryset = Quiz.objects.filter(is_active=True).select_related('category')
+    """List all active quizzes. Supports filtering by category and search by title."""
     serializer_class = QuizSerializer
     permission_classes = [IsAdminOrReadOnly]
 
-    @swagger_auto_schema(operation_summary="List all active quizzes")
+    def get_queryset(self):
+        queryset = Quiz.objects.filter(is_active=True).select_related('category')
+        
+        # Category Filter
+        category_slug = self.request.query_params.get('category')
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+            
+        # Search functionality
+        search_query = self.request.query_params.get('search')
+        if search_query:
+            queryset = queryset.filter(title__icontains=search_query)
+            
+        return queryset
+
+    @swagger_auto_schema(
+        operation_summary="List all active quizzes",
+        manual_parameters=[
+            openapi.Parameter(
+                'category', 
+                openapi.IN_QUERY, 
+                description="Filter quizzes by category slug", 
+                type=openapi.TYPE_STRING
+            ),
+            openapi.Parameter(
+                'search', 
+                openapi.IN_QUERY, 
+                description="Search quizzes by title", 
+                type=openapi.TYPE_STRING
+            )
+        ]
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
 class QuizDetailView(generics.RetrieveAPIView):
-    """Get full quiz details (including questions and choices)."""
-    queryset = Quiz.objects.filter(is_active=True)
+    """Get full quiz details. Optimized with prefetch_related."""
+    queryset = Quiz.objects.filter(is_active=True).prefetch_related('questions__choices', 'category')
     serializer_class = QuizDetailSerializer
     permission_classes = [IsAdminOrReadOnly]
 
