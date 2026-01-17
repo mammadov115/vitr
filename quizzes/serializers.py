@@ -11,10 +11,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
-    """Serializer for question choices."""
+    """Serializer for question choices - NO 'is_correct' for security."""
     class Meta:
         model = Choice
-        fields = ('id', 'text', 'is_correct')
+        fields = ('id', 'text')
 
 
 class QuestionSerializer(serializers.ModelSerializer):

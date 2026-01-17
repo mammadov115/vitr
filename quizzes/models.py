@@ -70,9 +70,9 @@ class TakenQuiz(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='taken_quizzes')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
     
-    score = models.FloatField() # 95.0
-    total_questions = models.IntegerField() # 100
-    correct_answers = models.IntegerField() # 95
+    score = models.FloatField(null=True, blank=True)
+    total_questions = models.IntegerField(null=True, blank=True)
+    correct_answers = models.IntegerField(null=True, blank=True)
     
     # UI-da gördüyün "12m 0s" üçün
     started_at = models.DateTimeField()
