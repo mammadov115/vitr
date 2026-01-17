@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
 APPS = [
     "accounts.apps.AccountsConfig",
-    # "quizzes.apps.QuizzesConfig",
+    "quizzes.apps.QuizzesConfig",
     # "activities.apps.ActivitiesConfig",
 ]
 
@@ -57,6 +57,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "drf_yasg",
+    "nested_admin",
 ]
 
 INSTALLED_APPS += APPS + THIRD_PARTY_APPS

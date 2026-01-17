@@ -41,6 +41,7 @@ class Quiz(models.Model):
     def __str__(self):
         return self.title
 
+
 class Question(models.Model):
     """Model to represent a question in a quiz."""
 
@@ -50,6 +51,7 @@ class Question(models.Model):
 
     def __str__(self):
         return self.text
+
 
 class Choice(models.Model):
     """Model to represent a choice for a question."""
