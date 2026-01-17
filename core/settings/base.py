@@ -34,6 +34,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",  
+    "unfold.contrib.filters",  
+    "unfold.contrib.forms",    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -146,3 +149,40 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# REST framework throttle settings
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/minute', # Users who are not authenticated can make 5 requests per minute
+    }
+}
+
+# REST framework versioning settings
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+    'ALLOWED_VERSIONS': ['v1', 'v2'],
+    'VERSION_PARAM': 'version',
+}
+
+# Unfold settings
+UNFOLD = {
+    "SITE_TITLE": "Quiz App Admin",
+    "SITE_SYMBOL": "quiz", # Google Material Symbols-based icon name
+    "SHOW_HISTORY": True, # Enable history tracking
+    "COLORS": {
+        "primary": {
+            "50": "250 250 250",
+            "100": "245 245 245",
+            "200": "229 229 229",
+            "300": "212 212 212",
+            "400": "163 163 163",
+            "500": "115 115 115", # Default primary color
+            "600": "82 82 82",
+            "700": "64 64 64",
+            "800": "38 38 38",
+            "900": "23 23 23",
+            "950": "10 10 10",
+        },
+    },
+}

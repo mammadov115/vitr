@@ -1,6 +1,11 @@
 import pytest
-from accounts.serializers import UserProfileSerializer
+from accounts.serializers import UserProfileSerializer, RegisterSerializer
 from accounts.models import Profile, UserAchievement
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
+
 
 @pytest.mark.django_db
 class TestUserProfileSerializer:
@@ -35,3 +40,73 @@ class TestUserProfileSerializer:
         serializer = UserProfileSerializer(instance=active_user)
         # Verify the formatted time played display
         assert serializer.data['profile']['time_played_display'] == "2h 30m"
+
+
+@pytest.mark.django_db
+class TestRegisterSerializer:
+    """For testing RegisterSerializer functionality"""
+
+    def test_register_serializer_valid_data(self):
+        """Test successful user registration with valid data."""
+
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "StrongPassword123!",
+            "password_confirm": "StrongPassword123!"
+        }
+        
+        serializer = RegisterSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+        
+        user = serializer.save()
+        
+        assert user.username == "testuser"
+        assert user.email == "test@example.com"
+        assert user.check_password("StrongPassword123!")
+        assert User.objects.count() == 1
+
+    def test_register_serializer_passwords_mismatch(self):
+        """Test registration fails when passwords do not match."""
+        
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "ComplexPassword99!@#",
+            "password_confirm": "DifferentPassword456"
+        }
+        
+        serializer = RegisterSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "password" in serializer.errors
+        # Check the specific error message
+        assert serializer.errors["password"][0] == "Password fields didn't match."
+
+    def test_register_serializer_duplicate_email(self, active_user):
+        """Test registration fails when using an email that already exists."""
+
+        data = {
+            "username": "newuser",
+            "email": active_user.email,  # Duplicate email
+            "password": "Password123!",
+            "password_confirm": "Password123!"
+        }
+        
+        serializer = RegisterSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "email" in serializer.errors
+
+    def test_register_serializer_weak_password(self):
+        """Test registration fails with a weak password."""
+
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "123", # Weak password
+            "password_confirm": "123"
+        }
+        
+        serializer = RegisterSerializer(data=data)
+        # Django's standard validate_password rules will be applied
+        assert not serializer.is_valid()
+        assert "password" in serializer.errors

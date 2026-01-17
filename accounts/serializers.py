@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import User, Profile, Achievement, UserAchievement
+from django.contrib.auth.password_validation import validate_password
+from .models import User
+
 
 class AchievementSerializer(serializers.ModelSerializer):
     """For representing Achievement details"""
@@ -57,3 +60,28 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'avatar', 'is_verified', 
             'bio', 'date_joined', 'profile', 'earned_achievements'
         ]
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    """ Serializer for user registration """
+
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password_confirm = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'password_confirm')
+
+    def validate(self, attrs):
+        """Ensure the two password fields match."""
+
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
+
+    def create(self, validated_data):
+        """Create a new user with the validated data."""
+
+        validated_data.pop('password_confirm')
+        user = User.objects.create_user(**validated_data)
+        return user
